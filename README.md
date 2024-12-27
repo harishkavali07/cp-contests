@@ -1,1 +1,1 @@
-# cc-contests
+# cp-contests
