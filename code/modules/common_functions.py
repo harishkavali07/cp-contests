@@ -1,4 +1,5 @@
 import requests
+import math
 
 
 async def get_api_response(url: str, request_type: str, headers: dict = None, payload: dict = None) -> tuple:
@@ -22,3 +23,27 @@ async def get_api_response(url: str, request_type: str, headers: dict = None, pa
     if response.status_code == 200:
         return True, response.json()
     return False, {}
+
+def merge_contests(sources):
+    merged_data = {"upcoming": [], "completed": [], "ongoing": []}
+    
+    for source in sources:
+        for category in merged_data.keys():
+            merged_data[category].extend(source.get(category, []))
+    
+    return merged_data
+
+def request_body(data, req_body):
+    positive_infinity = math.inf
+    modified_data = {"upcoming": [], "completed": [], "ongoing": []}
+    for source, values in data.items():
+        if source in req_body.get("phases", ["upcoming", "completed", "ongoing"]):
+            for contest in values:
+                if (contest["platform"] in req_body.get("sources", ["codechef", "codeforces", "leetcode"]) and 
+                req_body.get("duration", [0, positive_infinity])[0] <= contest["duration"] and 
+                req_body.get("duration", [0, positive_infinity])[1] >= contest["duration"] and 
+                req_body.get("from_date", "2000-01-01T22:00:00+05:30") <= contest["start_time"] and 
+                req_body.get("to_date", "2100-01-01T22:00:00+05:30") >= contest["start_time"]):
+                    modified_data[source].append(contest)
+
+    return modified_data                
