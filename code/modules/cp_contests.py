@@ -1,20 +1,33 @@
 import json
+import asyncio
 from fastapi import Response
 from http import HTTPStatus
 from modules.common_functions import merge_contests, request_body
 from sources.codechef import get_codechef_contests_data
 from sources.codeforce import get_codeforces_contests_data
 from sources.leetcode import get_leetcode_contests_data
+import logging
+
+logging.basicConfig(
+    level=logging.DEBUG,
+    format='%(asctime)s - %(levelname)s - %(message)s'
+)
 
 async def get_contests_data(req_body: dict):
     try:
+        tasks = []
         # print("inside get_contests_data")
-        codechef_data = await get_codechef_contests_data()
+        if "codechef" in req_body.get("sources", ["codechef", "codeforces", "leetcode"]):
+            tasks.append(get_codechef_contests_data())
         # print("data fetched from codechef")
-        codeforce_data = await get_codeforces_contests_data()
-        leetcode_data = await get_leetcode_contests_data()
-        contest_data_sources = [codechef_data, codeforce_data, leetcode_data]
+        if "codeforces" in req_body.get("sources", ["codechef", "codeforces", "leetcode"]):
+            tasks.append(get_codeforces_contests_data())
+        if "leetcode" in req_body.get("sources", ["codechef", "codeforces", "leetcode"]):
+            tasks.append(get_leetcode_contests_data())
+        results = await asyncio.gather(*tasks)    
+        contest_data_sources = [result for result in results if result]
         test_data = merge_contests(contest_data_sources)
+        logging.info("Merged contest data")
         data = request_body(test_data, req_body)
         return Response(
             json.dumps(data),
@@ -22,6 +35,7 @@ async def get_contests_data(req_body: dict):
             media_type = "application/json"
         )
     except Exception as err_msg:
+        logging.error(f"Error occurred while fetching contests data: {err_msg}")
         return Response(
             json.dumps(
                 {
