@@ -33,19 +33,10 @@ async def process_raw_data():
     logging.info("Processing raw data for contests...")
     upcoming_contests = CODE_CHEF_RAW_DATA.get("future_contests", [])
     completed_contests = CODE_CHEF_RAW_DATA.get("past_contests", [])
-    ongoing_contests = CODE_CHEF_RAW_DATA.get("present_contests", [])
-
-    process_data = await asyncio.gather(
-        get_default_format(upcoming_contests),
-        get_default_format(completed_contests),
-        get_default_format(ongoing_contests)
-    )
-
-    return {
-        "upcoming": process_data[0],
-        "completed": process_data[1],
-        "ongoing": process_data[2]
-    }
+    process_data = {}
+    process_data["upcoming"] = await get_default_format(upcoming_contests)
+    process_data["completed"] = await get_default_format(completed_contests)
+    return process_data
 
 async def get_codechef_contests_data():
     logging.info("Inside get_codechef_contests_data function...")

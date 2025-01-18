@@ -3,15 +3,8 @@ import asyncio
 from fastapi import Response
 from http import HTTPStatus
 from modules.common_functions import merge_contests, request_body
+from modules.common_functions import merge_contests, request_body
 from sources.codechef import get_codechef_contests_data
-from sources.codeforce import get_codeforces_contests_data
-from sources.leetcode import get_leetcode_contests_data
-import logging
-
-logging.basicConfig(
-    level=logging.DEBUG,
-    format='%(asctime)s - %(levelname)s - %(message)s'
-)
 
 async def get_contests_data(req_body: dict):
     try:
