@@ -3,6 +3,12 @@ import sys
 import json
 from pathlib import Path
 from fastapi import FastAPI, Body
+import logging
+
+logging.basicConfig(
+    level=logging.DEBUG,
+    format='%(asctime)s - %(levelname)s - %(message)s'
+)
 
 # Add the parent directory to the sys.path
 sys.path.append(str(Path(__file__).parent.parent))
@@ -20,6 +26,6 @@ app = FastAPI()
 
 @app.post("/cp-contests")
 async def get_contests_deatils(request_body : dict = Body(...)):
-    print(f"request body: {request_body}")
+    logging.info(f"Received request for contests with body: {request_body}")
     response = await get_contests_data(req_body = request_body)
     return response
