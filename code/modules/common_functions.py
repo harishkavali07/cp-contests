@@ -6,6 +6,7 @@ logging.basicConfig(
     level=logging.DEBUG,
     format='%(asctime)s - %(levelname)s - %(message)s'
 )
+import math
 
 
 async def get_api_response(url: str, request_type: str, headers: dict = None, payload: dict = None) -> tuple:
